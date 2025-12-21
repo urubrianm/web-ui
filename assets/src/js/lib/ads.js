@@ -2,13 +2,14 @@ function renderAd(el, ad) {
     ad = Object.assign({}, {
         trackPrefix: 'ad-',
     }, ad);
+    /*
     if (ad.script) {
         renderScriptAd(ad);
     } else if (ad.injectScript) {
         renderInjectAd(ad);
     } else {
         renderMediaAd(el, ad);
-    }
+    }*/
 }
 
 function track(msg) {

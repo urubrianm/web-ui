@@ -45,9 +45,9 @@ export function initPlayer(target) {
             }
         }
     }
-    if (window._domainSettings && window._domainSettings.ads === true) {
-        features.push('logo');
-    }
+    //if (window._domainSettings && window._domainSettings.ads === true) {
+    //    features.push('logo');
+    //}
     player = new MediaElementPlayer(video, {
         renderers: ['native_hls', 'html5'],
         autoRewind: false,
