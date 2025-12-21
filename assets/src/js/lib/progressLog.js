@@ -62,7 +62,7 @@ class SDK {
 export function initProgressLog(el, func) {
     const r = new Renderer(el, func);
     function onMessage(data) {
-        r.renderMessage(data);
+        //r.renderMessage(data);
     }
 
     const url = el.getAttribute('data-async-progress-log');
