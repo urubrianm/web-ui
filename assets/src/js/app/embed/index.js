@@ -4,6 +4,26 @@ if (window._umami) {
     (await import('../../lib/umami')).init(window, window._umami);
 }
 
+function ensureLoader() {
+    let el = document.getElementById('player-loader');
+    if (!el) {
+        el = document.createElement('div');
+        el.id = 'player-loader';
+        el.className = 'player-loader';
+        el.innerHTML = '<div class="spinner"></div>';
+        document.body.appendChild(el);
+    }
+    return el;
+}
+function showLoader() {
+    const el = ensureLoader();
+    el.classList.remove('hidden');
+}
+function hideLoader() {
+    const el = document.getElementById('player-loader');
+    if (el) el.classList.add('hidden');
+}
+
 function setHeight() {
     const width = document.body.offsetWidth;
     const height = width/16*9;
@@ -14,6 +34,7 @@ function startPlayer(progress, el) {
     window.removeEventListener('resize', setHeight);
     document.body.style.height = 'auto';
     progress.classList.add('hidden');
+    hideLoader();
     el.classList.remove('hidden');
     const event = new CustomEvent('player_play');
     window.dispatchEvent(event);

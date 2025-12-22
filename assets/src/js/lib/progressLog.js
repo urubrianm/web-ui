@@ -62,7 +62,7 @@ class SDK {
 export function initProgressLog(el, func) {
     const r = new Renderer(el, func);
     function onMessage(data) {
-        //r.renderMessage(data);
+        r.renderMessage(data);
     }
 
     const url = el.getAttribute('data-async-progress-log');
@@ -85,6 +85,8 @@ class Renderer {
         this.el = el;
         this.func = func;
         this.lt = el.querySelector('.log-target');
+        this.hideLogs = el.getAttribute('data-hide-logs') === 'true';
+        this.loaderEl = el.querySelector('.progress-loader');
         for (const close of el.querySelectorAll('.closeable-close')) {
             close.addEventListener('click', () => {
                 el.classList.add('hidden');
@@ -195,6 +197,18 @@ class Renderer {
         } else if (!this.inited) {
             this.inited = true;
             this.el.classList.remove('hidden');
+        }
+        if (this.hideLogs) {
+            // Keep the container visible as a loader, but avoid printing streaming logs.
+            if (this.loaderEl) this.loaderEl.classList.remove('hidden');
+            // Only surface errors / redirects to the user.
+            if (data.level === 'error' || data.level === 'redirect') {
+                this.addSummary(data);
+                if (data.level === 'error') this.enableError();
+                if (data.level === 'redirect' && data.location) window.location = data.location;
+            }
+            if (this.func) this.func.call(this, data);
+            return;
         }
         if (data.level === 'close') {
             this.showClose();

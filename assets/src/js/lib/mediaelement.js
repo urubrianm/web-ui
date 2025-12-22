@@ -45,9 +45,9 @@ export function initPlayer(target) {
             }
         }
     }
-    //if (window._domainSettings && window._domainSettings.ads === true) {
-    //    features.push('logo');
-    //}
+    if (window._domainSettings && window._domainSettings.ads === true) {
+        features.push('logo');
+    }
     player = new MediaElementPlayer(video, {
         renderers: ['native_hls', 'html5'],
         autoRewind: false,
@@ -67,7 +67,6 @@ export function initPlayer(target) {
             maxMaxBufferLength: 180,
         },
         error: function(e) {
-            console.log(e);
             destroyPlayer();
             initPlayer(target);
         },
@@ -150,7 +149,6 @@ export function initPlayer(target) {
                                 break;
                         }
                     } else {
-                        console.log(data);
                         if (data.type === Hls.ErrorTypes.MEDIA_ERROR && data.details === 'bufferStalledError') {
                             setTimeout(() => {
                                 media.hlsPlayer.startLoad();
@@ -165,7 +163,6 @@ export function initPlayer(target) {
 }
 
 export function destroyPlayer() {
-    console.log(player, hlsPlayer, video);
     if (player) {
         player.options.stretching = 'none';
         player.pause();
