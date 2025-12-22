@@ -15,6 +15,14 @@
         {{ template "embed_extra" . }}
         {{ "embed.css" | asset }}
         {{ "embed/index.js" | asset }}
+            <style>
+            .player-loader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.65);z-index:99999}
+            .player-loader.hidden{display:none}
+            .player-loader .spinner{width:56px;height:56px;border:6px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite}
+            @keyframes spin{to{transform:rotate(360deg)}}
+            .progress-loader{display:none}
+        </style>
+
     </head>
     <body data-iframe-height class="relative">
         {{ if .Err }}
@@ -25,10 +33,15 @@
         {{ end }} 
         {{ with .Data }}
         {{ if has . "Job" }}
-        <form class="hidden progress-alert progress-alert-block mb-10 closeable bg-black/50" data-async-progress-log="{{ .Job | makeJobLogURL }}">
+        <form data-hide-logs="true" class="hidden progress-alert progress-alert-block mb-10 closeable bg-black/50" data-async-progress-log="{{ .Job | makeJobLogURL }}">
+            <div class="progress-loader"></div>
             <div class="log-target"></div>
         </form>
         {{ end }}
         {{ end }}
+            <div id="player-loader" class="player-loader">
+            <div class="spinner"></div>
+        </div>
+
     </body>
 </html>
