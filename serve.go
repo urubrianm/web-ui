@@ -2,7 +2,7 @@ package main
 
 import (
 	"net/http"
-
+	"github.com/webtor-io/web-ui/services/featureflags"
 	wa "github.com/webtor-io/web-ui/handlers/action"
 	wau "github.com/webtor-io/web-ui/handlers/auth"
 	"github.com/webtor-io/web-ui/handlers/donate"
@@ -54,7 +54,6 @@ import (
 	w "github.com/webtor-io/web-ui/services/web"
 
 	stremios "github.com/webtor-io/web-ui/services/stremio"
-	featureflags "github.com/webtor-io/web-ui/services/featureflags"
 )
 
 func makeServeCMD() cli.Command {
