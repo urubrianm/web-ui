@@ -7,6 +7,11 @@
             window._embedSettings = {{ .Data.EmbedSettings | json }};
             window._domainSettings = {{ .Data.DomainSettings | json }};
             window._sessionID = "{{ .SessionID }}";
+            window.__WEBUI_FLAGS__ = {
+                disableDownloads: {{ if .Flags.DisableDownloads }}true{ { else } } false{ { end } },
+            disableAds: { { if .Flags.DisableAds } } true{ { else } } false{ { end } },
+            disableLogs: { { if .Flags.DisableLogs } } true{ { else } } false{ { end } }
+};
             {{- if useUmami }}
             window._umami = {{ umamiConfig | json }};
             {{- end }}
@@ -33,10 +38,12 @@
         {{ end }} 
         {{ with .Data }}
         {{ if has . "Job" }}
-        <form data-hide-logs="true" class="hidden progress-alert progress-alert-block mb-10 closeable bg-black/50" data-async-progress-log="{{ .Job | makeJobLogURL }}">
-            <div class="progress-loader"></div>
-            <div class="log-target"></div>
-        </form>
+    <form class="hidden progress-alert progress-alert-block mb-10 closeable bg-black/50"
+          data-hide-logs="{{ if .Flags.DisableLogs }}true{{ else }}false{{ end }}"
+          data-async-progress-log="{{ .Job | makeJobLogURL }}">
+        <div class="progress-loader"></div>
+        <div class="log-target"></div>
+    </form>
         {{ end }}
         {{ end }}
             <div id="player-loader" class="player-loader">

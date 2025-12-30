@@ -198,8 +198,11 @@ func (s *EmbedScript) findBestItem(l *ra.ListResponse) *ra.ListItem {
 }
 
 func (s *EmbedScript) renderAds(j *job.Job, c *web.Context, dsd *embed.DomainSettingsData) (err error) {
+	if c.Flags.DisableAds {
+		return nil
+	}
 	if !dsd.Ads {
-		return
+		return nil
 	}
 	adsTemplate := "embed/ads"
 	tpl := s.tb.Build(adsTemplate)

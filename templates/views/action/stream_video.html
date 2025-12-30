@@ -4,12 +4,12 @@
     <video class="player"
            crossorigin="anonymous"
            preload="{{ .ExportTag.Preload }}"
-           {{ if .ExternalData.Poster }}poster="{{ .ExternalData.Poster }}"
-           {{ else if .ExportTag.Poster }}poster="{{ .ExportTag.Poster }}" {{ end }}
-           {{ if .MediaProbe }}data-duration="{{ .MediaProbe | getDurationSec }}" {{ end }}
-           {{ if .Settings | hasControls }}controls{{ end }}
-           {{ if .Settings.Width }}width="{{ .Settings.Width }}"{{ end }}
-           {{ if .Settings.Height }}height="{{ .Settings.Height }}"{{ end }}
+           {{ if .ExternalData.Poster }} poster="{{ .ExternalData.Poster }}"
+           {{ else if .ExportTag.Poster }} poster="{{ .ExportTag.Poster }}" {{ end }}
+           {{ if .MediaProbe }} data-duration="{{ .MediaProbe | getDurationSec }}" {{ end }}
+           {{ if .Settings | hasControls }} controls{{ end }}
+           {{ if .Settings.Width }} width="{{ .Settings.Width }}" {{ end }}
+           {{ if .Settings.Height }} height="{{ .Settings.Height }}" {{ end }}
            autoplay
            data-settings="{{ .Settings | json }}">
         {{ range .ExportTag.Sources }}
@@ -18,7 +18,7 @@
         {{ range getSubtitles .VideoStreamUserData .MediaProbe .ExportTag .OpenSubtitles .ExternalData }}
         {{ if ne .Provider "MediaProbe" }}
         {{ if ne .ID "none" }}
-        <track src="{{ .Src }}" id="{{ .ID }}" srclang="{{ .SrcLang }}" label="{{ .Label }}" kind="{{ .Kind }}" {{ if .Default }}default="default"{{ end }}>
+        <track src="{{ .Src }}" id="{{ .ID }}" srclang="{{ .SrcLang }}" label="{{ .Label }}" kind="{{ .Kind }}" {{ if .Default }} default="default" {{ end }}>
         {{ end }}
         {{ end }}
         {{ end }}
@@ -34,7 +34,7 @@
                     <h3 class="font-bold text-lg">Audio</h3>
                     <ul class="flex flex-wrap">
                         {{ range getAudioTracks .VideoStreamUserData .MediaProbe }}
-                        <li data-id="{{ .ID }}" data-mp-id="{{ .MPID }}" data-provider="{{ .Provider }}" {{ if .Default }}data-default="true" {{ end }} class="audio cursor-pointer pr-3{{ if .Default }} text-primary underline{{ end }}">{{ .Label }}</li>
+                        <li data-id="{{ .ID }}" data-mp-id="{{ .MPID }}" data-provider="{{ .Provider }}" {{ if .Default }} data-default="true" {{ end }} class="audio cursor-pointer pr-3{{ if .Default }} text-primary underline{{ end }}">{{ .Label }}</li>
                         {{ end }}
                     </ul>
                 </div>
@@ -42,7 +42,7 @@
                     <h3 class="font-bold text-lg">Subtitles</h3>
                     <ul class="flex flex-wrap">
                         {{ range $otherSubs }}
-                        <li data-id="{{ .ID }}" data-mp-id="{{ .MPID }}" data-provider="{{ .Provider }}" {{ if .Default }}data-default="true" {{ end }} class="subtitle cursor-pointer pr-3{{ if .Default }} text-primary underline{{ end }}">{{ .Label }}</li>
+                        <li data-id="{{ .ID }}" data-mp-id="{{ .MPID }}" data-provider="{{ .Provider }}" {{ if .Default }} data-default="true" {{ end }} class="subtitle cursor-pointer pr-3{{ if .Default }} text-primary underline{{ end }}">{{ .Label }}</li>
                         {{ end }}
                     </ul>
                 </div>
@@ -52,7 +52,7 @@
                     <h3 class="font-bold text-lg">OpenSubtitles</h3>
                     <ul class="flex flex-wrap">
                         {{ range $openSubs }}
-                        <li data-id="{{ .ID }}" data-provider="{{ .Provider }}" {{ if .Default }}data-default="true" {{ end }} class="subtitle cursor-pointer pr-3{{ if .Default }} text-primary underline{{ end }}">{{ .Label }}</li>
+                        <li data-id="{{ .ID }}" data-provider="{{ .Provider }}" {{ if .Default }} data-default="true" {{ end }} class="subtitle cursor-pointer pr-3{{ if .Default }} text-primary underline{{ end }}">{{ .Label }}</li>
                         {{ end }}
                     </ul>
                 </div>
@@ -78,7 +78,16 @@
             </div>
         </div>
     </div>
-   
+    <div class="absolute right-0 top-0 p-2 hidden z-50" id="logo">
+        {{ if not .Flags.DisableDownloads }}
+        <a type="submit" class="btn btn-accent btn-sm" data-umami-event="embed-download" href="{{ domain }}/{{ .VideoStreamUserData.ResourceID }}?pwd={{ .Item.PathStr | pwd }}&file={{ .Item.PathStr }}#action=download" target="_blank">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"></path>
+            </svg>
+            Download
+        </a>
+        {{ end }}
+    </div>
 </div>
 {{ end }}
 {{ "mediaelement.css" | asset }}

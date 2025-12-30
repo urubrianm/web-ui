@@ -47,7 +47,9 @@ window.addEventListener('load', async () => {
     let playingAds = false;
     let playerReady = false;
     let adsPlayed = false;
-    initProgressLog(progress, function(ev) {
+    initProgressLog(progress, function (ev) {
+       
+
         if (ev.level !== 'rendertemplate') return;
         if (ev.tag === 'rendering action') {
             window.addEventListener('player_ready', function() {
@@ -68,6 +70,8 @@ window.addEventListener('load', async () => {
             document.body.appendChild(forbid);
             ev.render(forbid);
         }
+        const flags = window.__WEBUI_FLAGS__ || {};
+        if (flags.disableAds) return;
         if (ev.tag === 'rendering ads' && !adsPlayed) {
             window.addEventListener('ads_play', function() {
                 playingAds = true;

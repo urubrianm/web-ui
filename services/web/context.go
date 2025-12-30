@@ -8,6 +8,7 @@ import (
 	"github.com/webtor-io/web-ui/services/auth"
 	"github.com/webtor-io/web-ui/services/claims"
 	"github.com/webtor-io/web-ui/services/geoip"
+	"github.com/webtor-io/web-ui/services/featureflags"
 )
 
 type Context struct {
@@ -21,6 +22,7 @@ type Context struct {
 	Geo         *geoip.Data
 	ApiClaims   *api.Claims
 	ginCtx      *gin.Context
+	Flags       featureflags.Flags
 }
 
 func (c *Context) WithData(obj any) *Context {
@@ -46,6 +48,7 @@ func NewContext(c *gin.Context) *Context {
 	geoData := geo.GetFromContext(c)
 	aCl := api.GetClaimsFromContext(c)
 	tu := claims.GetTierUpdateFromContext(c)
+	ff := featureflags.Get(c)
 
 	return &Context{
 		CSRF:        sess.CSRF,
@@ -55,6 +58,7 @@ func NewContext(c *gin.Context) *Context {
 		SessionID:   sess.ID,
 		Geo:         geoData,
 		TierUpdated: tu,
+		Flags:       ff,
 		ginCtx:      c,
 	}
 }

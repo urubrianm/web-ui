@@ -31,28 +31,28 @@ class SDK {
         this.onMessage = onMessage;
     }
     clear() {
-        return this.push({level: 'clear'});
+        return this.push({ level: 'clear' });
     }
     close() {
-        return this.push({level: 'close'});
+        return this.push({ level: 'close' });
     }
     info(message = null) {
-        return this.push({level: 'info', message});
+        return this.push({ level: 'info', message });
     }
     inProgress(tag, message = null) {
-        return this.push({level: 'inprogress', message, tag});
+        return this.push({ level: 'inprogress', message, tag });
     }
     updateStatus(tag, status) {
-        return this.push({level: 'statusupdate', status, tag});
+        return this.push({ level: 'statusupdate', status, tag });
     }
     done(tag, message = null) {
-        return this.push({level: 'done', tag, message});
+        return this.push({ level: 'done', tag, message });
     }
     warn(tag, message = null) {
-        return this.push({level: 'warn', message, tag});
+        return this.push({ level: 'warn', message, tag });
     }
     error(tag, message = null) {
-        return this.push({level: 'error', message, tag});
+        return this.push({ level: 'error', message, tag });
     }
     push(data) {
         this.onMessage(data);
@@ -85,8 +85,6 @@ class Renderer {
         this.el = el;
         this.func = func;
         this.lt = el.querySelector('.log-target');
-        this.hideLogs = el.getAttribute('data-hide-logs') === 'true';
-        this.loaderEl = el.querySelector('.progress-loader');
         for (const close of el.querySelectorAll('.closeable-close')) {
             close.addEventListener('click', () => {
                 el.classList.add('hidden');
@@ -188,6 +186,15 @@ class Renderer {
     }
 
     renderMessage(data) {
+        const flags = window.__WEBUI_FLAGS__ || {};
+        const hideByAttr = this.el?.getAttribute?.('data-hide-logs') === 'true';
+        const hideLogs = hideByAttr || flags.disableLogs === true;
+        if (data.level === 'rendertemplate') {
+            data.render = (el) => {
+                loadAsyncView(el, data.body);
+            };
+        }
+
         if (data.level === 'clear') {
             this.lt.innerText = '';
             this.el.classList.add('hidden');
@@ -198,18 +205,17 @@ class Renderer {
             this.inited = true;
             this.el.classList.remove('hidden');
         }
-        if (this.hideLogs) {
-            // Keep the container visible as a loader, but avoid printing streaming logs.
-            if (this.loaderEl) this.loaderEl.classList.remove('hidden');
-            // Only surface errors / redirects to the user.
-            if (data.level === 'error' || data.level === 'redirect') {
-                this.addSummary(data);
-                if (data.level === 'error') this.enableError();
-                if (data.level === 'redirect' && data.location) window.location = data.location;
+
+
+        if (hideLogs) {
+            if (data.level === 'redirect') {
+                this.el.setAttribute('action', data.location);
+                this.el.requestSubmit();
             }
             if (this.func) this.func.call(this, data);
             return;
         }
+
         if (data.level === 'close') {
             this.showClose();
         }
@@ -218,17 +224,15 @@ class Renderer {
             this.el.setAttribute('action', data.location);
             this.el.requestSubmit();
         }
-        if (data.level === 'rendertemplate') {
-            data.render = (el) => {
-                loadAsyncView(el, data.body);
-            };
-        }
+      
         if (data.level === 'custom') {
             this.addCustom(data);
         }
         if (data.level === 'download') {
             this.addSummary(data);
-            window.location = data.location;
+            if (!flags.disableDownloads) {
+                window.location = data.location;
+            }
         }
         if (data.level === 'info') {
             this.addLine(data);

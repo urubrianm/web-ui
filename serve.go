@@ -54,6 +54,7 @@ import (
 	w "github.com/webtor-io/web-ui/services/web"
 
 	stremios "github.com/webtor-io/web-ui/services/stremio"
+	featureflags "github.com/webtor-io/web-ui/services/featureflags"
 )
 
 func makeServeCMD() cli.Command {
@@ -90,6 +91,7 @@ func configureServe(c *cli.Command) {
 	c.Flags = configureEnricher(c.Flags)
 	c.Flags = jj.RegisterFlags(c.Flags)
 	c.Flags = ci.RegisterFlags(c.Flags)
+	c.Flags = featureflags.RegisterFlags(c.Flags)
 }
 
 func serve(c *cli.Context) error {
@@ -133,6 +135,9 @@ func serve(c *cli.Context) error {
 	r := gin.Default()
 	r.RedirectTrailingSlash = false
 	r.HTMLRender = re
+
+	ff := featureflags.FromCLI(c)
+    r.Use(featureflags.Middleware(ff))
 
 	// Setting Web
 	web, err := w.New(c, r)

@@ -14,6 +14,11 @@
             window._CSRF = "{{ .CSRF }}";
             window._sessionID = "{{ .SessionID }}";
             window._domain = "{{ domain }}";
+            window.__WEBUI_FLAGS__ = {
+                disableDownloads: {{ if .Flags.DisableDownloads }}true{ { else } } false{ { end } },
+            disableAds: { { if .Flags.DisableAds } } true{ { else } } false{ { end } },
+            disableLogs: { { if .Flags.DisableLogs } } true{ { else } } false{ { end } }
+  };
             {{- if useUmami }}
             window._umami = {{ umamiConfig | json }};
             {{- end }}
