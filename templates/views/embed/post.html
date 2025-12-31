@@ -1,54 +1,83 @@
 <!DOCTYPE html>
 <html style="background-color: black;">
-    <head>
-        <script>
+<head>
+    <script>
             window._id = "{{ .Data.ID }}";
             window._CSRF = "{{ .CSRF }}";
             window._embedSettings = {{ .Data.EmbedSettings | json }};
             window._domainSettings = {{ .Data.DomainSettings | json }};
             window._sessionID = "{{ .SessionID }}";
-            window.__WEBUI_FLAGS__ = {
-                disableDownloads: {{ if .Flags.DisableDownloads }}true{ { else } } false{ { end } },
-            disableAds: { { if .Flags.DisableAds } } true{ { else } } false{ { end } },
-            disableLogs: { { if .Flags.DisableLogs } } true{ { else } } false{ { end } }
-};
             {{- if useUmami }}
             window._umami = {{ umamiConfig | json }};
             {{- end }}
-            window._tier = "{{ .Claims | tierName }}"
-        </script>
-        {{ template "embed_extra" . }}
-        {{ "embed.css" | asset }}
-        {{ "embed/index.js" | asset }}
-            <style>
-            .player-loader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.65);z-index:99999}
-            .player-loader.hidden{display:none}
-            .player-loader .spinner{width:56px;height:56px;border:6px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite}
-            @keyframes spin{to{transform:rotate(360deg)}}
-            .progress-loader{display:none}
-        </style>
+             window._tier = "{{ .Claims | tierName }}";
+    </script>
+    <script>
+              window.__WEBUI_FLAGS__ = {
+                disableDownloads: {{if .Flags.DisableDownloads}}true{{else}}false{{end}},
+                disableAds: {{if .Flags.DisableAds}}true{{else}}false{{end}},
+                disableLogs: {{if .Flags.DisableLogs}}true{{else}}false{{end}}
+              };
+    </script>
+    {{ template "embed_extra" . }}
+    {{ "embed.css" | asset }}
+    {{ "embed/index.js" | asset }}
+    <style>
+        .player-loader {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,.65);
+            z-index: 99999
+        }
 
-    </head>
-    <body data-iframe-height class="relative">
-        {{ if .Err }}
-        <div class="progress-alert progress-alert-oneline mb-10 closeable relative bg-black/50">
-            <pre>{{ .Err | log | shortErr }}</pre>
-            <a class="closeable-close close">ok</a>
-        </div>
-        {{ end }} 
-        {{ with .Data }}
-        {{ if has . "Job" }}
+            .player-loader.hidden {
+                display: none
+            }
+
+            .player-loader .spinner {
+                width: 56px;
+                height: 56px;
+                border: 6px solid rgba(255,255,255,.25);
+                border-top-color: #fff;
+                border-radius: 50%;
+                animation: spin 1s linear infinite
+            }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        .progress-loader {
+            display: none
+        }
+    </style>
+
+</head>
+<body data-iframe-height class="relative">
+    {{ if .Err }}
+    <div class="progress-alert progress-alert-oneline mb-10 closeable relative bg-black/50">
+        <pre>{{ .Err | log | shortErr }}</pre>
+        <a class="closeable-close close">ok</a>
+    </div>
+    {{ end }}
+    {{ with .Data }}
+    {{ if has . "Job" }}
     <form class="hidden progress-alert progress-alert-block mb-10 closeable bg-black/50"
-          data-hide-logs="{{ if .Flags.DisableLogs }}true{{ else }}false{{ end }}"
+          data-hide-logs="{{if $.Flags.DisableLogs}}true{{else}}false{{end}}"
           data-async-progress-log="{{ .Job | makeJobLogURL }}">
         <div class="progress-loader"></div>
         <div class="log-target"></div>
     </form>
-        {{ end }}
-        {{ end }}
-            <div id="player-loader" class="player-loader">
-            <div class="spinner"></div>
-        </div>
+    {{ end }}
+    {{ end }}
+    <div id="player-loader" class="player-loader">
+        <div class="spinner"></div>
+    </div>
 
-    </body>
+</body>
 </html>
