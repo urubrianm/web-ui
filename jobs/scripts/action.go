@@ -22,6 +22,7 @@ import (
 
 	"github.com/webtor-io/web-ui/services/api"
 	"github.com/webtor-io/web-ui/services/job"
+	"github.com/urubrianm/web-ui/services/featureflags"
 )
 
 type StreamContent struct {
@@ -34,6 +35,7 @@ type StreamContent struct {
 	Settings            *models.StreamSettings
 	ExternalData        *models.ExternalData
 	DomainSettings      *embed.DomainSettingsData
+	Flags               featureflags.Flags
 }
 
 type TorrentDownload struct {
@@ -48,6 +50,7 @@ func (s *ActionScript) streamContent(ctx context.Context, j *job.Job, c *web.Con
 		Settings:       settings,
 		ExternalData:   &models.ExternalData{},
 		DomainSettings: dsd,
+		Flags:         c.Flags,
 	}
 	j.InProgress("retrieving resource data")
 	resCtx, resCancel := context.WithTimeout(ctx, 30*time.Second)
