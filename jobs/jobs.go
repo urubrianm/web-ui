@@ -7,6 +7,7 @@ import (
 	"github.com/webtor-io/web-ui/services/job"
 	"github.com/webtor-io/web-ui/services/template"
 	"github.com/webtor-io/web-ui/services/web"
+	"github.com/urubrianm/web-ui/services/featureflags"
 )
 
 const (

@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"github.com/urubrianm/web-ui/services/featureflags"
 
 	"github.com/pkg/errors"
 	"github.com/webtor-io/web-ui/models"
