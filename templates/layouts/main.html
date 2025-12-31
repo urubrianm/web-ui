@@ -1,32 +1,34 @@
 <!doctype html>
 <html lang="en" data-theme="night">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <title>{{ template "title" . }} | Webtor.io</title>
-        <meta name="description" content="Download and play torrents with free online torrent web player and downloader. Just paste the magnet link or open the torrent file and start downloading or watching torrent content safely and anonymously through your web browser. Works instantly without client and registration!">
-        <link rel="shortcut icon" href="/assets/night/favicon.ico">
-        <link rel="icon" type="image/svg+xml" href="/assets/night/favicon.svg" >
-        <link rel="icon" type="image/png" sizes="16x16" href="/assets/night/favicon-16x16.png">
-        <link rel="icon" type="image/png" sizes="32x32" href="/assets/night/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="48x48" href="/assets/night/favicon-48x48.png">
-        <script>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{{ template "title" . }} | Webtor.io</title>
+    <meta name="description" content="Download and play torrents with free online torrent web player and downloader. Just paste the magnet link or open the torrent file and start downloading or watching torrent content safely and anonymously through your web browser. Works instantly without client and registration!">
+    <link rel="shortcut icon" href="/assets/night/favicon.ico">
+    <link rel="icon" type="image/svg+xml" href="/assets/night/favicon.svg">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/night/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/night/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/night/favicon-48x48.png">
+    <script>
             window._CSRF = "{{ .CSRF }}";
             window._sessionID = "{{ .SessionID }}";
             window._domain = "{{ domain }}";
-            window.__WEBUI_FLAGS__ = {
-                disableDownloads: {{ if .Flags.DisableDownloads }}true{ { else } } false{ { end } },
-            disableAds: { { if .Flags.DisableAds } } true{ { else } } false{ { end } },
-            disableLogs: { { if .Flags.DisableLogs } } true{ { else } } false{ { end } }
-  };
             {{- if useUmami }}
             window._umami = {{ umamiConfig | json }};
             {{- end }}
-        </script>
-        {{ "baskerville.css" | asset }}
-        {{ "style.css" | asset }}
-        {{- template "head_extra" . }}
-    </head>
+    </script>
+    <script>
+              window.__WEBUI_FLAGS__ = {
+                disableDownloads: {{if .Flags.DisableDownloads}}true{{else}}false{{end}},
+                disableAds: {{if .Flags.DisableAds}}true{{else}}false{{end}},
+                disableLogs: {{if .Flags.DisableLogs}}true{{else}}false{{end}}
+              };
+    </script>
+    {{ "baskerville.css" | asset }}
+    {{ "style.css" | asset }}
+    {{- template "head_extra" . }}
+</head>
     <body class="flex flex-col min-h-screen">
         <script>document.body.style.display = 'none';</script>
         <progress id="progress" class="progress fixed progress-accent h-1"></progress>
