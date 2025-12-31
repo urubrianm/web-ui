@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 	
-	"github.com/urubrianm/web-ui/services/featureflags"
 
 	"github.com/anacrolix/torrent/metainfo"
 	"github.com/pkg/errors"
@@ -24,6 +23,8 @@ import (
 
 	"github.com/webtor-io/web-ui/services/api"
 	"github.com/webtor-io/web-ui/services/job"
+	"github.com/webtor-io/web-ui/services/featureflags"
+	
 )
 
 type StreamContent struct {
