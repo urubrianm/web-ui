@@ -1,8 +1,6 @@
 package main
 
 import (
-	"net/http"
-	"github.com/webtor-io/web-ui/services/featureflags"
 	wa "github.com/webtor-io/web-ui/handlers/action"
 	wau "github.com/webtor-io/web-ui/handlers/auth"
 	"github.com/webtor-io/web-ui/handlers/donate"
@@ -33,11 +31,13 @@ import (
 	at "github.com/webtor-io/web-ui/services/access_token"
 	ci "github.com/webtor-io/web-ui/services/cache_index"
 	"github.com/webtor-io/web-ui/services/common"
+	"github.com/webtor-io/web-ui/services/featureflags"
 	"github.com/webtor-io/web-ui/services/geoip"
 	lr "github.com/webtor-io/web-ui/services/link_resolver"
 	rum "github.com/webtor-io/web-ui/services/request_url_mapper"
 	"github.com/webtor-io/web-ui/services/umami"
 	ua "github.com/webtor-io/web-ui/services/url_alias"
+	"net/http"
 
 	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
@@ -136,7 +136,7 @@ func serve(c *cli.Context) error {
 	r.HTMLRender = re
 
 	ff := featureflags.FromCLI(c)
-    r.Use(featureflags.Middleware(ff))
+	r.Use(featureflags.Middleware(ff))
 
 	// Setting Web
 	web, err := w.New(c, r)
@@ -241,11 +241,13 @@ func serve(c *cli.Context) error {
 
 	if asc != nil {
 		defer asc.Close()
-		// Setting Support
-		support.RegisterHandler(r, tm, asc)
+		if !c.Bool(common.DisableMainUIFlag) {
+			// Setting Support
+			support.RegisterHandler(r, tm, asc)
 
-		// Setting Legal
-		legal.RegisterHandler(r, tm)
+			// Setting Legal
+			legal.RegisterHandler(r, tm)
+		}
 	}
 
 	// Setting DomainSettings
@@ -254,17 +256,37 @@ func serve(c *cli.Context) error {
 		return err
 	}
 
+	disableMainUI := c.Bool(common.DisableMainUIFlag)
+
 	// Setting ResourceHandler
 	wr.RegisterHandler(c, r, tm, sapi, jobs, pg)
 
-	// Setting IndexHandler
-	wi.RegisterHandler(r, tm)
+	if disableMainUI {
+		// In embed-only mode, hide the marketing/main UI and redirect common entrypoints to /embed.
+		redirectToEmbed := func(c *gin.Context) {
+			c.Redirect(http.StatusMovedPermanently, "/embed")
+		}
+		r.GET("/", redirectToEmbed)
+		r.GET("/torrent-to-ddl", redirectToEmbed)
+		r.GET("/torrent-to-zip", redirectToEmbed)
+		r.GET("/magnet-to-ddl", redirectToEmbed)
+		r.GET("/magnet-to-torrent", redirectToEmbed)
+	}
+
+	// Main UI routes (/, /profile, /library, etc.) can be disabled to run in embed-only mode.
+	// Embed-only mode keeps: /embed, /show, /resource/*, /ext/*, streaming/actions endpoints.
+	if !disableMainUI {
+		// Setting IndexHandler
+		wi.RegisterHandler(r, tm)
+	}
 
 	// Setting ActionHandler
 	wa.RegisterHandler(r, tm, jobs)
 
 	// Setting ProfileHandler
-	p.RegisterHandler(c, r, tm, ats, ual, pg, uc)
+	if !disableMainUI {
+		p.RegisterHandler(c, r, tm, ats, ual, pg, uc)
+	}
 
 	// Setting EmbedDomainHandler
 	err = embed_domain.RegisterHandler(c, r, pg)
@@ -273,7 +295,9 @@ func serve(c *cli.Context) error {
 	}
 
 	// Setting EmbedExamplesHandler
-	wee.RegisterHandler(r, tm)
+	if !disableMainUI {
+		wee.RegisterHandler(r, tm)
+	}
 
 	// Setting EmbedHandler
 	we.RegisterHandler(c, cl, r, tm, jobs, ds, sapi)
@@ -282,10 +306,14 @@ func serve(c *cli.Context) error {
 	ext.RegisterHandler(r, tm)
 
 	// Setting Donate
-	donate.RegisterHandler(r)
+	if !disableMainUI {
+		donate.RegisterHandler(r)
+	}
 
 	// Setting Library
-	library.RegisterHandler(c, r, tm, sapi, pg, jobs, cl, s3Cl)
+	if !disableMainUI {
+		library.RegisterHandler(c, r, tm, sapi, pg, jobs, cl, s3Cl)
+	}
 
 	// Setting CacheIndex
 	cacheIndex := ci.New(c, pg)
@@ -324,11 +352,13 @@ func serve(c *cli.Context) error {
 	// Setting WebDAV
 	webdav.RegisterHandler(c, r, pg, ats, sapi, jobs)
 
-	// Setting Tests
-	tests.RegisterHandler(r, tm)
+	if !disableMainUI {
+		// Setting Tests
+		tests.RegisterHandler(r, tm)
 
-	// Setting Instructions
-	instructions.RegisterHandler(r, tm)
+		// Setting Instructions
+		instructions.RegisterHandler(r, tm)
+	}
 
 	// Render templates
 	err = tm.Init()

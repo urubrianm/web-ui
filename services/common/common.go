@@ -23,6 +23,7 @@ var (
 	SessionSecretFlag = "secret"
 	DisableWebDAVFlag = "disable-webdav"
 	DisableEmbedFlag  = "disable-embed"
+	DisableMainUIFlag = "disable-main-ui"
 )
 
 func RegisterFlags(f []cli.Flag) []cli.Flag {
@@ -91,6 +92,11 @@ func RegisterFlags(f []cli.Flag) []cli.Flag {
 			Name:   DisableEmbedFlag,
 			Usage:  "disable embed",
 			EnvVar: "DISABLE_EMBED",
+		},
+		cli.BoolFlag{
+			Name:   DisableMainUIFlag,
+			Usage:  "disable main UI routes (keep /embed + /show)",
+			EnvVar: "DISABLE_MAIN_UI",
 		},
 	)
 
