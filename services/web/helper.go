@@ -84,7 +84,65 @@ func (s *Helper) Has(obj any, fieldName string) bool {
 	field := value.FieldByName(fieldName)
 	return field.IsValid() && !field.IsNil()
 }
+// HasPoster is a generic template helper used across multiple UI partials.
+// Some partials are always parsed at startup, even if their routes are disabled.
+// To avoid startup failures due to missing template funcs (e.g. hasPoster), we
+// provide a safe, reflection-based implementation here.
+func (s *Helper) HasPoster(obj any) bool {
+	if obj == nil {
+		return false
+	}
 
+	// Prefer a GetMetadata() method if present (common in VideoContentWithMetadata).
+	m := reflect.ValueOf(obj)
+	if m.IsValid() {
+		gm := m.MethodByName("GetMetadata")
+		if gm.IsValid() && gm.Type().NumIn() == 0 && gm.Type().NumOut() == 1 {
+			out := gm.Call(nil)[0]
+			if out.IsValid() && !out.IsZero() {
+				// out is usually a pointer. Deref if needed.
+				mv := out
+				if mv.Kind() == reflect.Pointer {
+					if mv.IsNil() {
+						return false
+					}
+					mv = mv.Elem()
+				}
+				if mv.IsValid() {
+					f := mv.FieldByName("PosterURL")
+					if f.IsValid() && f.Kind() == reflect.String {
+						return strings.TrimSpace(f.String()) != ""
+					}
+					f = mv.FieldByName("Poster")
+					if f.IsValid() && f.Kind() == reflect.String {
+						return strings.TrimSpace(f.String()) != ""
+					}
+				}
+			}
+		}
+	}
+
+	// Fallback: try common field names on the object itself.
+	v := reflect.ValueOf(obj)
+	if v.Kind() == reflect.Pointer {
+		if v.IsNil() {
+			return false
+		}
+		v = v.Elem()
+	}
+	if v.IsValid() {
+		for _, name := range []string{"PosterURL", "PosterUrl", "Poster", "PosterPath", "Image", "ImageURL", "ImageUrl"} {
+			f := v.FieldByName(name)
+			if f.IsValid() && f.Kind() == reflect.String {
+				if strings.TrimSpace(f.String()) != "" {
+					return true
+				}
+			}
+		}
+	}
+
+	return false
+}
 type Helper struct {
 	assetsHost     string
 	assetsPath     string
